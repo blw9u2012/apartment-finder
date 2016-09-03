@@ -45,10 +45,10 @@ def scrape_area(area):
     :return: A list of results.
     """
     cl_h = CraigslistHousing(site=settings.CRAIGSLIST_SITE, area=area, category=settings.CRAIGSLIST_HOUSING_SECTION,
-                             filters={'max_price': settings.MAX_PRICE, "min_price": settings.MIN_PRICE})
+                             filters={'max_price': settings.MAX_PRICE, 'min_price': settings.MIN_PRICE})
 
     results = []
-    gen = cl_h.get_results(sort_by='newest', geotagged=True, limit=20)
+    gen = cl_h.get_results(sort_by='newest', geotagged=True, limit=40)
     while True:
         try:
             result = next(gen)
@@ -76,7 +76,6 @@ def scrape_area(area):
                 result.update(geo_data)
             else:
                 result["area"] = ""
-                result["bart"] = ""
 
             # Try parsing the price.
             price = 0
@@ -95,17 +94,12 @@ def scrape_area(area):
                 price=price,
                 location=result["where"],
                 cl_id=result["id"],
-                area=result["area"],
-                bart_stop=result["bart"]
+                area=result["area"]
             )
 
             # Save the listing so we don't grab it again.
             session.add(listing)
             session.commit()
-
-            # Return the result if it's near a bart station, or if it is in an area we defined.
-            if len(result["bart"]) > 0 or len(result["area"]) > 0:
-                results.append(result)
 
     return results
 

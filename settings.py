@@ -60,6 +60,18 @@ BOXES = {
     "union_station": [
         [-77.0042975029,38.8971406395],
         [-76.9877779484,38.9011615003]
+    ],
+    "u_street" : [
+        [-77.0344378,38.9121319043],
+        [-77.0216488838,38.920711]
+    ],
+    "h_street": [
+        [-77.009128,38.896127],
+        [-76.984162,38.902573]
+    ],
+    "noma": [
+        [-77.014762,38.904443],
+        [-77.000406,38.912601]
     ]
 }
 
@@ -67,7 +79,7 @@ BOXES = {
 # one of the boxes you defined, it will be checked to see if the neighborhood name it was listed under matches one
 # of these.  This is less accurate than the boxes, because it relies on the owner to set the right neighborhood,
 # but it also catches listings that don't have coordinates (many listings are missing this info).
-NEIGHBORHOODS = ["adams morgan", "capitol hill", "columbia heights", "brookland", "shaw", "petworth", "bloomingdale", "mount vernon", "union station"]
+NEIGHBORHOODS = ["adams morgan", "capitol hill", "columbia heights", "brookland", "shaw", "petworth", "bloomingdale", "mount vernon", "union station", "u street", "h street", "noma"]
 
 ## Transit preferences
 
@@ -93,7 +105,7 @@ CRAIGSLIST_HOUSING_SECTION = 'apa'
 # How long we should sleep between scrapes of Craigslist.
 # Too fast may get rate limited.
 # Too slow may miss listings.
-SLEEP_INTERVAL = 20 * 60 # 20 minutes
+SLEEP_INTERVAL = 60 * 60 # 20 minutes
 
 # Which slack channel to post the listings into.
 SLACK_CHANNEL = "#housing"
