@@ -113,3 +113,6 @@ SLACK_CHANNEL = "#housing"
 # The token that allows us to connect to slack.
 # Should be put in private.py, or set as an environment variable.
 SLACK_TOKEN = os.getenv('SLACK_TOKEN', "")
+
+# Token that allows us to make requests to Google's Geocoding service
+GEOCODE_API_TOKEN = os.getenv('GEOCODE_API_TOKEN', "")

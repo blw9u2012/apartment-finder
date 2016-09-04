@@ -1,6 +1,6 @@
 from craigslist import CraigslistHousing
 from dateutil.parser import parse
-from util import post_listing_to_slack, find_points_of_interest
+from util import post_listing_to_slack, find_points_of_interest, get_coordinates
 from slackclient import SlackClient
 from pymongo import MongoClient
 import time
@@ -49,6 +49,10 @@ def scrape_area(area):
 
                 # Annotate the result with information about the area it's in and points of interest near it.
                 geo_data = find_points_of_interest(result["geotag"], result["where"])
+                result.update(geo_data)
+            elif result["where"]:
+                coords = get_coordinates(result["where"])
+                geo_data = find_points_of_interest(coords, result["where"])
                 result.update(geo_data)
             else:
                 result["area"] = ""

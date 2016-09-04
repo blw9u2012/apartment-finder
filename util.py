@@ -1,5 +1,7 @@
 import settings
 import math
+import urllib3
+import json
 
 def coord_distance(lat1, lon1, lat2, lon2):
     """
@@ -67,4 +69,20 @@ def find_points_of_interest(geotag, location):
         "area_found": area_found,
         "area": area
     }
+
+def get_coordinates(where):
+    where = where.replace(" ", "+")
+    url = "https://maps.googleapis.com/maps/api/geocode/json?address={0}&key={1}".format(where, settings.GEOCODE_API_TOKEN)
+    http_agent = urllib3.PoolManager()
+    request = http_agent.request('GET', url)
+    response = json.loads(request.data)
+    # Coordinates of the viewport on Google Maps
+    _coords = response['results']['geometry']['viewport']
+    box = []
+    # Convert to acceptable format
+    for k, v in _coords.iteritems():
+        temp = [k, v]
+        box.append(temp)
+    return box
+
 
