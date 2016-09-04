@@ -1,42 +1,15 @@
 from craigslist import CraigslistHousing
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, DateTime, Float, Boolean
-from sqlalchemy.orm import sessionmaker
 from dateutil.parser import parse
 from util import post_listing_to_slack, find_points_of_interest
 from slackclient import SlackClient
+from pymongo import MongoClient
 import time
 import settings
 
-engine = create_engine('sqlite:///listings.db', echo=False)
-
-Base = declarative_base()
-
-class Listing(Base):
-    """
-    A table to store data on craigslist listings.
-    """
-
-    __tablename__ = 'listings'
-
-    id = Column(Integer, primary_key=True)
-    link = Column(String, unique=True)
-    created = Column(DateTime)
-    geotag = Column(String)
-    lat = Column(Float)
-    lon = Column(Float)
-    name = Column(String)
-    price = Column(Float)
-    location = Column(String)
-    cl_id = Column(Integer, unique=True)
-    area = Column(String)
-    bart_stop = Column(String)
-
-Base.metadata.create_all(engine)
-
-Session = sessionmaker(bind=engine)
-session = Session()
+# Initialize Mongo client....
+client = MongoClient('localhost', 27017)
+db = client['listings']
+listing_collections = db['listings']
 
 def scrape_area(area):
     """
@@ -48,15 +21,18 @@ def scrape_area(area):
                              filters={'max_price': settings.MAX_PRICE, 'min_price': settings.MIN_PRICE})
 
     results = []
-    gen = cl_h.get_results(sort_by='newest', geotagged=True, limit=40)
+    gen = cl_h.get_results(sort_by='newest', geotagged=True, limit=20)
     while True:
         try:
             result = next(gen)
         except StopIteration:
             break
-        except Exception:
+        except Exception, e:
+            print str(e)
             continue
-        listing = session.query(Listing).filter_by(cl_id=result["id"]).first()
+        #listing = session.query(Listing).filter_by(cl_id=result["id"]).first()
+        # Check for listing
+        listing = listing_collections.find_one({"id": result["id"]})
 
         # Don't store the listing if it already exists.
         if listing is None:
@@ -84,22 +60,20 @@ def scrape_area(area):
             except Exception:
                 pass
 
-            # Create the listing object.
-            listing = Listing(
-                link=result["url"],
-                created=parse(result["datetime"]),
-                lat=lat,
-                lon=lon,
-                name=result["name"],
-                price=price,
-                location=result["where"],
-                cl_id=result["id"],
-                area=result["area"]
-            )
+            listing = {
+                "link": result["url"],
+                "created": parse(result["datetime"]),
+                "lat": lat,
+                "lon": lon,
+                "name": result["name"],
+                "price": price,
+                "location": result["where"],
+                "cl_id": result["id"],
+                "area": result["area"]
+            }
 
-            # Save the listing so we don't grab it again.
-            session.add(listing)
-            session.commit()
+            # Insert into the collection...
+            _listing_id = listing_collections.insert_one(listing)
 
     return results
 

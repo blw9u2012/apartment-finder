@@ -52,6 +52,11 @@ def find_points_of_interest(geotag, location):
     area_found = False
     area = ""
 
+    for a, coords in settings.BOXES.items():
+        if in_box(geotag, coords):
+            area = a
+            area_found = True
+
     # If the listing isn't in any of the boxes we defined, check to see if the string description of the neighborhood
     # matches anything in our list of neighborhoods.
     if len(area) == 0:
