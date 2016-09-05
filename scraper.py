@@ -51,8 +51,8 @@ def scrape_area(area):
                 geo_data = find_points_of_interest(result["geotag"], result["where"])
                 result.update(geo_data)
             elif result["where"]:
-                coords = get_coordinates(result["where"])
-                geo_data = find_points_of_interest(coords, result["where"])
+                coords_box = get_coordinates(result["where"])
+                geo_data = find_points_of_interest(coords_box, result["where"])
                 result.update(geo_data)
             else:
                 result["area"] = ""
@@ -78,6 +78,11 @@ def scrape_area(area):
 
             # Insert into the collection...
             _listing_id = listing_collections.insert_one(listing)
+
+            # If area is found return the results
+            if len(result["area"]) > 0:
+                results.append(result)
+
 
     return results
 

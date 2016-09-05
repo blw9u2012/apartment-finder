@@ -3,6 +3,8 @@ import math
 import urllib3
 import json
 
+urllib3.disable_warnings()
+
 def coord_distance(lat1, lon1, lat2, lon2):
     """
     Finds the distance between two pairs of latitude and longitude.
@@ -37,11 +39,14 @@ def post_listing_to_slack(sc, listing):
     :param sc: A slack client.
     :param listing: A record of the listing.
     """
-    desc = "{0} | {1} | {2} | {3} | <{4}>".format(listing["area"], listing["price"], listing["bart_dist"], listing["name"], listing["url"])
-    sc.api_call(
-        "chat.postMessage", channel=settings.SLACK_CHANNEL, text=desc,
-        username='pybot', icon_emoji=':robot_face:'
-    )
+    try:
+        desc = "{0} | {1} | {2} | <{3}>".format(listing["area"], listing["price"], listing["name"], listing["url"])
+        sc.api_call(
+            "chat.postMessage", channel=settings.SLACK_CHANNEL, text=desc,
+            username='pybot', icon_emoji=':robot_face:'
+        )
+    except Exception, e:
+        print "Failed to post to slack :("
 
 def find_points_of_interest(geotag, location):
     """
@@ -65,6 +70,7 @@ def find_points_of_interest(geotag, location):
         for hood in settings.NEIGHBORHOODS:
             if hood in location.lower():
                 area = hood
+                area_found = True
     return {
         "area_found": area_found,
         "area": area
@@ -77,12 +83,27 @@ def get_coordinates(where):
     request = http_agent.request('GET', url)
     response = json.loads(request.data)
     # Coordinates of the viewport on Google Maps
-    _coords = response['results']['geometry']['viewport']
-    box = []
-    # Convert to acceptable format
-    for k, v in _coords.iteritems():
-        temp = [k, v]
-        box.append(temp)
+    try:
+        _coords = response['results'][0]['geometry']['viewport']
+        box = [[0,0],[0,0]]
+
+        # Convert to acceptable format
+        for k, v in _coords.iteritems():
+            # Get coordinates of southwest corner first...
+            if k == 'southwest':
+                for x, y in v.iteritems():
+                    if x == 'lng':
+                        box[0][0] = y
+                    else:
+                        box[0][1] = y
+            else:
+                for x, y in v.iteritems():
+                    if x == 'lng':
+                        box[1][0] = y
+                    else:
+                        box[1][1] = y
+    except Exception, e:
+        print "Unable to get coordinates :("
     return box
 
 
