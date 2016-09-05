@@ -60,6 +60,18 @@ BOXES = {
     "union_station": [
         [-77.0042975029,38.8971406395],
         [-76.9877779484,38.9011615003]
+    ],
+    "u_street" : [
+        [-77.0344378,38.9121319043],
+        [-77.0216488838,38.920711]
+    ],
+    "h_street": [
+        [-77.009128,38.896127],
+        [-76.984162,38.902573]
+    ],
+    "noma": [
+        [-77.014762,38.904443],
+        [-77.000406,38.912601]
     ]
 }
 
@@ -67,7 +79,7 @@ BOXES = {
 # one of the boxes you defined, it will be checked to see if the neighborhood name it was listed under matches one
 # of these.  This is less accurate than the boxes, because it relies on the owner to set the right neighborhood,
 # but it also catches listings that don't have coordinates (many listings are missing this info).
-NEIGHBORHOODS = ["adams morgan", "capitol hill", "columbia heights", "brookland", "shaw", "petworth", "bloomingdale", "mount vernon", "union station"]
+NEIGHBORHOODS = ["adams morgan", "capitol hill", "columbia heights", "brookland", "shaw", "petworth", "bloomingdale", "mount vernon", "union station", "u street", "h street", "noma"]
 
 ## Transit preferences
 
@@ -102,14 +114,5 @@ SLACK_CHANNEL = "#housing"
 # Should be put in private.py, or set as an environment variable.
 SLACK_TOKEN = os.getenv('SLACK_TOKEN', "")
 
-# Any private settings are imported here.
-try:
-    from private import *
-except Exception:
-    pass
-
-# Any external private settings are imported from here.
-try:
-    from config.private import *
-except Exception:
-    pass
+# Token that allows us to make requests to Google's Geocoding service
+GEOCODE_API_TOKEN = os.getenv('GEOCODE_API_TOKEN', "")

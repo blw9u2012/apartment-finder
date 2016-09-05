@@ -1,5 +1,7 @@
 import settings
 import math
+import urllib3
+import json
 
 def coord_distance(lat1, lon1, lat2, lon2):
     """
@@ -51,25 +53,11 @@ def find_points_of_interest(geotag, location):
     """
     area_found = False
     area = ""
-    min_dist = None
-    near_bart = False
-    bart_dist = "N/A"
-    bart = ""
-    # Look to see if the listing is in any of the neighborhood boxes we defined.
+
     for a, coords in settings.BOXES.items():
         if in_box(geotag, coords):
             area = a
             area_found = True
-
-    # Check to see if the listing is near any transit stations.
-    for station, coords in settings.TRANSIT_STATIONS.items():
-        dist = coord_distance(coords[0], coords[1], geotag[0], geotag[1])
-        if (min_dist is None or dist < min_dist) and dist < settings.MAX_TRANSIT_DIST:
-            bart = station
-            near_bart = True
-
-        if (min_dist is None or dist < min_dist):
-            bart_dist = dist
 
     # If the listing isn't in any of the boxes we defined, check to see if the string description of the neighborhood
     # matches anything in our list of neighborhoods.
@@ -77,11 +65,24 @@ def find_points_of_interest(geotag, location):
         for hood in settings.NEIGHBORHOODS:
             if hood in location.lower():
                 area = hood
-
     return {
         "area_found": area_found,
-        "area": area,
-        "near_bart": near_bart,
-        "bart_dist": bart_dist,
-        "bart": bart
+        "area": area
     }
+
+def get_coordinates(where):
+    where = where.replace(" ", "+")
+    url = "https://maps.googleapis.com/maps/api/geocode/json?address={0}&key={1}".format(where, settings.GEOCODE_API_TOKEN)
+    http_agent = urllib3.PoolManager()
+    request = http_agent.request('GET', url)
+    response = json.loads(request.data)
+    # Coordinates of the viewport on Google Maps
+    _coords = response['results']['geometry']['viewport']
+    box = []
+    # Convert to acceptable format
+    for k, v in _coords.iteritems():
+        temp = [k, v]
+        box.append(temp)
+    return box
+
+
