@@ -72,6 +72,10 @@ BOXES = {
     "noma": [
         [-77.014762,38.904443],
         [-77.000406,38.912601]
+    ],
+    "eckington": [
+        [-77.009075,38.908884],
+        [-76.996447,38.921189]
     ]
 }
 
@@ -79,7 +83,12 @@ BOXES = {
 # one of the boxes you defined, it will be checked to see if the neighborhood name it was listed under matches one
 # of these.  This is less accurate than the boxes, because it relies on the owner to set the right neighborhood,
 # but it also catches listings that don't have coordinates (many listings are missing this info).
-NEIGHBORHOODS = ["adams morgan", "capitol hill", "columbia heights", "brookland", "shaw", "petworth", "bloomingdale", "mount vernon", "union station", "u street", "h street", "noma"]
+NEIGHBORHOODS = [
+    "adams morgan", "capitol hill", "columbia heights",
+    "brookland", "shaw", "petworth", "bloomingdale",
+    "mount vernon", "union station", "u street", "h street",
+    "noma", "eckington"
+]
 
 ## Transit preferences
 
@@ -109,6 +118,9 @@ SLEEP_INTERVAL = 30 * 60 # 20 minutes
 
 # Which slack channel to post the listings into.
 SLACK_CHANNEL = "#housing"
+
+# Bot name that will be posting to slack
+BOT_NAME = "craigslistbot"
 
 # The token that allows us to connect to slack.
 # Should be put in private.py, or set as an environment variable.
