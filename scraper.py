@@ -40,6 +40,9 @@ def scrape_area(area):
                 # If there is no string identifying which neighborhood the result is from, skip it.
                 continue
 
+            # Check for multiple bedrooms
+            
+
             lat = 0
             lon = 0
             if result["geotag"] is not None:

@@ -82,10 +82,11 @@ def get_coordinates(where):
     http_agent = urllib3.PoolManager()
     request = http_agent.request('GET', url)
     response = json.loads(request.data)
+    box = []
     # Coordinates of the viewport on Google Maps
     try:
         _coords = response['results'][0]['geometry']['viewport']
-        box = [[0,0],[0,0]]
+        box = [[0, 0], [0, 0]]
 
         # Convert to acceptable format
         for k, v in _coords.iteritems():
@@ -102,6 +103,7 @@ def get_coordinates(where):
                         box[1][0] = y
                     else:
                         box[1][1] = y
+        return box
     except Exception, e:
         print "Unable to get coordinates :("
     return box
