@@ -5,6 +5,7 @@ from slackclient import SlackClient
 from pymongo import MongoClient
 import time
 import settings
+import re
 
 # Initialize Mongo client....
 client = MongoClient('localhost', 27017)
@@ -21,7 +22,7 @@ def scrape_area(area):
                              filters={'max_price': settings.MAX_PRICE, 'min_price': settings.MIN_PRICE})
 
     results = []
-    gen = cl_h.get_results(sort_by='newest', geotagged=True, limit=20)
+    gen = cl_h.get_results(sort_by='newest', geotagged=True, limit=30)
     while True:
         try:
             result = next(gen)
@@ -41,7 +42,11 @@ def scrape_area(area):
                 continue
 
             # Check for multiple bedrooms
-            
+            if result["name"]:
+                _name = result["name"].lower()
+                match = re.search(r'2 bed.*', _name)
+                if not match:
+                    continue
 
             lat = 0
             lon = 0
@@ -86,8 +91,8 @@ def scrape_area(area):
             if len(result["area"]) > 0:
                 results.append(result)
 
-
     return results
+
 
 def do_scrape():
     """
